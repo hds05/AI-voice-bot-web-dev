@@ -27,14 +27,26 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center px-4 py-8">
-      <section className="hero-section text-center mb-10">
-        <h1 className="hero-title text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Your AI Voice Agent</h1>
-        <p className="hero-subtitle text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto font-medium mb-2">
-          Speak to interact. The agent will listen and respond until session ends.
-        </p>
-      </section>
+      <section className="hero-section w-full flex flex-col md:flex-row justify-between items-center mb-10 px-6">
+        {/* Left content - centered */}
+        <div className="md:relative left-15 flex-1 flex flex-col items-center text-center">
+          <h1 className="hero-title text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
+            Your AI Voice Agent
+          </h1>
+          <p className="hero-subtitle text-lg md:text-2xl text-gray-300 max-w-2xl mx-auto font-medium mb-2">
+            Speak to interact. The agent will listen and respond until session ends.
+          </p>
+        </div>
 
-      <SessionTimer duration={180} isActive={isConversationActive} onSessionEnd={handleSessionEnd} />
+        {/* Right - Session Timer */}
+        <div className="ml-4">
+          <SessionTimer
+            duration={180}
+            isActive={isConversationActive}
+            onSessionEnd={handleSessionEnd}
+          />
+        </div>
+      </section>
 
       <AIAvatarChat
         onStartConversation={handleStartConversation}

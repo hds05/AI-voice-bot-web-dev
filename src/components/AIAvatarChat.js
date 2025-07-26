@@ -1,46 +1,48 @@
-import React, { useEffect, useRef, useState } from "react";
+'use client';
+import React, { useEffect, useState } from 'react';
 
-const AIAvatarChat = ({ lastUserMsg, lastAIMsg, timer, onStartConversation, isConversationActive }) => {
+const AIAvatarChat = ({
+  lastUserMsg,
+  lastAIMsg,
+  timer,
+  onStartConversation,
+  isConversationActive,
+}) => {
   const [displayTimer, setDisplayTimer] = useState(timer || 0);
-  const intervalRef = useRef();
-  const widgetInjectedRef = useRef(false);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
+  const ELEVEN_API_KEY = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
+
+  // ⏱ Update timer display
   useEffect(() => {
+    let interval;
     if (timer !== undefined) {
       setDisplayTimer(timer);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      intervalRef.current = setInterval(() => {
+      interval = setInterval(() => {
         setDisplayTimer((t) => t + 1);
       }, 1000);
-      return () => clearInterval(intervalRef.current);
     }
+    return () => clearInterval(interval);
   }, [timer]);
 
+  // 📜 Load ElevenLabs Widget Script
   useEffect(() => {
-    if (isConversationActive && !widgetInjectedRef.current) {
-      const widget = document.createElement("elevenlabs-convai");
-      widget.setAttribute("agent-id", "agent_01k0p8fq0vf6nb47h24sap5x01");
-  
-      // Make sure it's completely hidden but in DOM
-      widget.style.position = "absolute";
-      widget.style.width = "0";
-      widget.style.height = "0";
-      widget.style.overflow = "hidden";
-      widget.style.opacity = "0";
-      widget.style.pointerEvents = "none";
-  
-      document.body.appendChild(widget);
-  
-      const script = document.createElement("script");
-      script.src = "https://unpkg.com/@elevenlabs/convai-widget-embed";
+    if (!ELEVEN_API_KEY) return;
+
+    const existingScript = document.querySelector(
+      'script[src="https://unpkg.com/@elevenlabs/convai-widget-embed"]'
+    );
+
+    if (!existingScript) {
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
       script.async = true;
-      script.type = "text/javascript";
+      script.onload = () => setIsScriptLoaded(true);
       document.body.appendChild(script);
-  
-      widgetInjectedRef.current = true;
+    } else {
+      setIsScriptLoaded(true);
     }
-  }, [isConversationActive]);
-  
+  }, [ELEVEN_API_KEY]);
 
   return (
     <div className="avatar-chat-center">
@@ -55,11 +57,24 @@ const AIAvatarChat = ({ lastUserMsg, lastAIMsg, timer, onStartConversation, isCo
         />
       </div>
 
-      <div className="avatar-status">
-        {/* <button className="avatar-title" >
-          {isConversationActive ? "End Conversation" : "Start a Conversation"}
-        </button> */}
-        <elevenlabs-convai onClick={onStartConversation} agent-id="agent_01k0p8fq0vf6nb47h24sap5x01"></elevenlabs-convai><script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+      <div className="avatar-status mt-4">
+        {ELEVEN_API_KEY ? (
+          isScriptLoaded ? (
+            <elevenlabs-convai
+              agent-id="agent_01k0p8fq0vf6nb47h24sap5x01"
+              onClick={onStartConversation}
+            ></elevenlabs-convai>
+          ) : (
+            <p className="text-yellow-400">Loading voice assistant...</p>
+          )
+        ) : (
+          <p className="text-red-500 text-center">
+            Voice assistant is disabled. 
+            {/* Please define{' '}
+            <code>NEXT_PUBLIC_ELEVENLABS_API_KEY</code> in your{' '}
+            <code>.env.local</code>. */}
+          </p>
+        )}
       </div>
     </div>
   );
