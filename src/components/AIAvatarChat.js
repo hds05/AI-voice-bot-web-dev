@@ -11,8 +11,6 @@ const AIAvatarChat = ({
   const [displayTimer, setDisplayTimer] = useState(timer || 0);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
-  const ELEVEN_API_KEY = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
-
   // ⏱ Update timer display
   useEffect(() => {
     let interval;
@@ -27,8 +25,6 @@ const AIAvatarChat = ({
 
   // 📜 Load ElevenLabs Widget Script
   useEffect(() => {
-    if (!ELEVEN_API_KEY) return;
-
     const existingScript = document.querySelector(
       'script[src="https://unpkg.com/@elevenlabs/convai-widget-embed"]'
     );
@@ -42,7 +38,7 @@ const AIAvatarChat = ({
     } else {
       setIsScriptLoaded(true);
     }
-  }, [ELEVEN_API_KEY]);
+  }, []);
 
   return (
     <div className="avatar-chat-center">
@@ -58,22 +54,13 @@ const AIAvatarChat = ({
       </div>
 
       <div className="avatar-status mt-4">
-        {ELEVEN_API_KEY ? (
-          isScriptLoaded ? (
-            <elevenlabs-convai
-              agent-id="agent_01k0p8fq0vf6nb47h24sap5x01"
-              onClick={onStartConversation}
-            ></elevenlabs-convai>
-          ) : (
-            <p className="text-yellow-400">Loading voice assistant...</p>
-          )
+        {isScriptLoaded ? (
+          <elevenlabs-convai
+            agent-id="agent_01k0p8fq0vf6nb47h24sap5x01"
+            onClick={onStartConversation}
+          ></elevenlabs-convai>
         ) : (
-          <p className="text-red-500 text-center">
-            Voice assistant is disabled. 
-            {/* Please define{' '}
-            <code>NEXT_PUBLIC_ELEVENLABS_API_KEY</code> in your{' '}
-            <code>.env.local</code>. */}
-          </p>
+          <p className="text-yellow-400">Loading voice assistant...</p>
         )}
       </div>
     </div>
